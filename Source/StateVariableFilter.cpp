@@ -2,14 +2,16 @@
 #include "StateVariableFilter.h"
 
 StateVariableFilter::StateVariableFilter()
+    : mMinCutoff(SVF_MIN_CUTOFF_FREQ)
 {
-    setParams(DEFAULT_SAMPLE_RATE, MIN_CUTOFF_FREQ, DEFAULT_Q);
+    setParams(SVF_MIN_CUTOFF_FREQ, SVF_DEFAULT_Q, SVF_DEFAULT_SAMPLE_RATE);
     reset();
 }
 
-StateVariableFilter::StateVariableFilter(double sampleRate, float freq = MIN_CUTOFF_FREQ, float q = DEFAULT_Q)
+StateVariableFilter::StateVariableFilter(double sampleRate, float freq = SVF_MIN_CUTOFF_FREQ, float q = SVF_DEFAULT_Q)
+    : mMinCutoff(freq)
 {
-    setParams(sampleRate, freq, q);
+    setParams(freq, q, sampleRate);
     reset();
 }
 
@@ -35,7 +37,7 @@ void StateVariableFilter::setSampleRate(double sampleRate)
 
 void StateVariableFilter::setCutoffFrequency(float normalizedFreq)
 {
-    mCutoff = MIN_CUTOFF_FREQ + normalizedFreq * (MAX_CUTOFF_FREQ - MIN_CUTOFF_FREQ);
+    mCutoff = mMinCutoff + normalizedFreq * (SVF_MAX_CUTOFF_FREQ - mMinCutoff);
     mGain = tan(0.5f * mCutoff / mSampleRate);
     mDenominator = 1 / (1 + 2 * mDamping * mGain + mGain * mGain);
 }
@@ -48,7 +50,7 @@ void StateVariableFilter::setResonance(float q)
 
 void StateVariableFilter::setParams(float normalizedFreq, float q)
 {
-    mCutoff = MIN_CUTOFF_FREQ + normalizedFreq * (MAX_CUTOFF_FREQ - MIN_CUTOFF_FREQ);
+    mCutoff = mMinCutoff + normalizedFreq * (SVF_MAX_CUTOFF_FREQ - mMinCutoff);
     mGain = tan(0.5f * mCutoff / mSampleRate);
     mDamping = 0.5f / q;
     mDenominator = 1 / (1 + 2 * mDamping * mGain + mGain * mGain);
@@ -58,6 +60,11 @@ void StateVariableFilter::setParams(float normalizedFreq, float q, double sample
 {
     setSampleRate(sampleRate);
     setParams(normalizedFreq, q);
+}
+
+void StateVariableFilter::setMinCutoffFrequency(float freq)
+{
+    mMinCutoff = freq;
 }
 
 float StateVariableFilter::getNextValue(float input)

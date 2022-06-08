@@ -21,11 +21,11 @@ BassEnvelopeFilterAudioProcessor::BassEnvelopeFilterAudioProcessor()
     ),
       mParameters(*this, nullptr, juce::Identifier("BassEnvFilter"), createParameterLayout())
 {
-    mAttackParameter = mParameters.getRawParameterValue("attack");
-    mReleaseParameter = mParameters.getRawParameterValue("release");
-    mQParameter = mParameters.getRawParameterValue("q_factor");
-    mDepthParameter = mParameters.getRawParameterValue("depth");
-    mDrywetParameter = mParameters.getRawParameterValue("drywet");
+    mDryParameter = mParameters.getRawParameterValue("dry");
+    mFXParameter = mParameters.getRawParameterValue("fx");
+    mDecayParameter = mParameters.getRawParameterValue("decay");
+    mQParameter = mParameters.getRawParameterValue("q");
+    mSensParameter = mParameters.getRawParameterValue("sens");
 
     for (int i = 0; i < getTotalNumInputChannels(); ++i) {
         mEnvelopeFollowers.push_back( std::make_unique<EnvelopeFollower>() );
@@ -38,35 +38,35 @@ juce::AudioProcessorValueTreeState::ParameterLayout BassEnvelopeFilterAudioProce
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "attack",
-        "Attack",
-        1.0,
-        1000.0,
-        50.0));
+        "dry",
+        "Dry",
+        0.0f,
+        2.0f,
+        0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "release",
-        "Release",
-        1.0,
-        1000.0,
-        50.0));
+        "fx",
+        "FX",
+        0.0f,
+        1.0f,
+        0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "q_factor",
+        "decay",
+        "Decay",
+        76.0f,
+        1300.0f,
+        400.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "q",
         "Q",
-        0.001,
-        20.0,
-        0.5));
+        0.5f,
+        20.0f,
+        10.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "depth",
-        "Depth",
-        0.001,
-        1.0,
-        0.5));
-    layout.add(std::make_unique<juce::AudioParameterFloat>(
-        "drywet",
-        "Dry/Wet",
-        0.0,
-        1.0,
-        1.0));
+        "sens",
+        "Sens",
+        0.0f,
+        15.0f,
+        5.0f));
 
     return layout;
 }
@@ -143,7 +143,8 @@ void BassEnvelopeFilterAudioProcessor::prepareToPlay (double sampleRate, int sam
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     for (int i = 0; i < getTotalNumInputChannels(); ++i) {
-        mEnvelopeFollowers[i]->setParams(*mAttackParameter, *mReleaseParameter, sampleRate);
+        mEnvelopeFollowers[i]->setSampleRate(sampleRate);
+        mEnvelopeFollowers[i]->setSens(*mSensParameter);
         mEnvelopeFollowers[i]->reset();
         mFilters[i]->setSampleRate(sampleRate);
         mFilters[i]->reset();
@@ -203,8 +204,8 @@ void BassEnvelopeFilterAudioProcessor::processBlock (juce::AudioBuffer<float>& b
     // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        mEnvelopeFollowers[channel]->setAttack(*mAttackParameter);
-        mEnvelopeFollowers[channel]->setRelease(*mReleaseParameter);
+        mEnvelopeFollowers[channel]->setSens(*mSensParameter);
+        mFilters[channel]->setMinCutoffFrequency(*mDecayParameter);
         mFilters[channel]->setResonance(*mQParameter);
 
         auto* channelData = buffer.getWritePointer(channel);
@@ -212,9 +213,9 @@ void BassEnvelopeFilterAudioProcessor::processBlock (juce::AudioBuffer<float>& b
         // ..do something to the data...
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            mFilters[channel]->setCutoffFrequency( *mDepthParameter * mEnvelopeFollowers[channel]->getNextValue(channelData[sample]) );
-            channelData[sample] = *mDrywetParameter * mFilters[channel]->getNextValue(channelData[sample])
-                                  + (1 - *mDrywetParameter) * channelData[sample];
+            mFilters[channel]->setCutoffFrequency(mEnvelopeFollowers[channel]->getNextValue(channelData[sample]) );
+            channelData[sample] = *mFXParameter * mFilters[channel]->getNextValue(channelData[sample])
+                                  + *mDryParameter * channelData[sample];
         }
     }
 

@@ -1,16 +1,19 @@
 #include <cmath>
+#include <algorithm>
 #include "EnvelopeFollower.h"
 
 EnvelopeFollower::EnvelopeFollower()
+    : mOutputGain(EF_DEFAULT_OUTPUT_GAIN)
 {
-    mEnvelope = 0;
+    setParams(EF_DEFAULT_CUTOFF_FREQ, EF_DEFAULT_SAMPLE_RATE);
+    reset();
 }
 
-EnvelopeFollower::EnvelopeFollower(double sampleRate, float attack, float release)
+EnvelopeFollower::EnvelopeFollower(double sampleRate, float cutoff)
+    : mOutputGain(EF_DEFAULT_OUTPUT_GAIN)
 {
-    setSampleRate(sampleRate);
-    setParams(sampleRate, attack, release);
-    mEnvelope = 0;
+    setParams(cutoff, sampleRate);
+    reset();
 }
 
 EnvelopeFollower::~EnvelopeFollower()
@@ -20,6 +23,8 @@ EnvelopeFollower::~EnvelopeFollower()
 
 void EnvelopeFollower::reset()
 {
+    mInput = 0;
+    mState = 0;
     mEnvelope = 0;
 }
 
@@ -28,30 +33,36 @@ void EnvelopeFollower::setSampleRate(double sampleRate)
     mSampleRate = static_cast<float> (sampleRate);
 }
 
-void EnvelopeFollower::setAttack(float attack)
+void EnvelopeFollower::setSens(float sens)
 {
-    mAttackCoeff = pow(0.01f, 1000 / attack / mSampleRate);
+    mOutputGain = sens;
 }
 
-void EnvelopeFollower::setRelease(float release)
+void EnvelopeFollower::setCutoff(float cutoff)
 {
-    mReleaseCoeff = pow(0.01f, 1000 / release / mSampleRate);
+    // Directly set the cutoff frequency
+    float g = tan(0.5f * cutoff / mSampleRate);
+    mGain = g / (1 + g);
 }
 
-void EnvelopeFollower::setParams(float attack, float release, double sampleRate)
+void EnvelopeFollower::setParams(float cutoff, double sampleRate)
 {
     mSampleRate = static_cast<float> (sampleRate);
-    mAttackCoeff = pow(0.01f, 1000 / attack / mSampleRate);
-    mReleaseCoeff = pow(0.01f, 1000 / release / mSampleRate);
+    float g = tan(0.5f * cutoff / mSampleRate);
+    mGain = g / (1 + g);
 }
+
+// void EnvelopeFollower::setOutputGain(float gain)
+// {
+//     mOutputGain = gain;
+// }
 
 float EnvelopeFollower::getNextValue(float input)
 {
-    mRectifiedInput = abs(input);
-    if (mRectifiedInput > mEnvelope)
-        mEnvelope = mRectifiedInput + mAttackCoeff * (mEnvelope - mRectifiedInput);
-    else
-        mEnvelope = mRectifiedInput + mReleaseCoeff * (mEnvelope - mRectifiedInput);
+    mInput = mGain * (abs(input) - mState);
+    mEnvelope = mInput + mState;
+    mState = mInput + mEnvelope;
     
-    return mEnvelope;
+    return mEnvelope * mOutputGain;
+    // return std::min(mEnvelope * mOutputGain, 1.0f);
 }

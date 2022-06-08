@@ -10,10 +10,10 @@
 
 #pragma once
 
-#define DEFAULT_SAMPLE_RATE 44100
-#define MIN_CUTOFF_FREQ 76.0f
-#define MAX_CUTOFF_FREQ 3200.0f
-#define DEFAULT_Q 0.5f
+#define SVF_DEFAULT_SAMPLE_RATE 44100
+#define SVF_MIN_CUTOFF_FREQ 76.0f
+#define SVF_MAX_CUTOFF_FREQ 3200.0f
+#define SVF_DEFAULT_Q 0.5f
 
 class StateVariableFilter
 {
@@ -28,6 +28,8 @@ public:
     void setParams(float freq, float q, double sampleRate);
     void setResonance(float q);
 
+    void setMinCutoffFrequency(float freq);
+
     void reset();
 
     float getNextValue(float input);
@@ -40,6 +42,7 @@ private:
     float mDenominator; // It's actually the reciprocal of the denominator
 
     float mCutoff;
+    float mMinCutoff;
 
     // The (amplified) inputs and states of the integrators
     float mInput1;

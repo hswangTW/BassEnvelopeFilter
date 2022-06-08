@@ -63,19 +63,13 @@ private:
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
-    // float mGainRelease;
-    // std::array<float, 2> mEnvelopes;
-
     juce::AudioProcessorValueTreeState mParameters;
-    std::atomic<float>* mAttackParameter = nullptr;
-    std::atomic<float>* mReleaseParameter = nullptr;
+    std::atomic<float>* mDryParameter = nullptr;
+    std::atomic<float>* mFXParameter = nullptr;
+    std::atomic<float>* mDecayParameter = nullptr;
     std::atomic<float>* mQParameter = nullptr;
-    std::atomic<float>* mDepthParameter = nullptr;
-    std::atomic<float>* mDrywetParameter = nullptr;
+    std::atomic<float>* mSensParameter = nullptr;
 
     std::vector<std::unique_ptr<EnvelopeFollower>> mEnvelopeFollowers;
     std::vector<std::unique_ptr<StateVariableFilter>> mFilters;
-
-    // juce::SmoothedValue<float, juce::ValueSmoothingTypes::Multiplicative> mSmoothedQ;
-    // juce::SmoothedValue<float, juce::ValueSmoothingTypes::Multiplicative> mSmoothedDepth;
 };
