@@ -2,9 +2,27 @@
 
 <JUCERPROJECT id="UNuhLG" name="BassEnvelopeFilter" projectType="audioplug"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" displaySplashScreen="1"
-              jucerFormatVersion="1" pluginFormats="buildVST3">
+              jucerFormatVersion="1" pluginFormats="buildStandalone,buildVST,buildVST3">
   <MAINGROUP id="w6qCSo" name="BassEnvelopeFilter">
+    <GROUP id="{8AAF53DE-C82F-B43C-B152-674C72708F0D}" name="Resources">
+      <FILE id="HHrnrD" name="CenturyGothicFont.cpp" compile="1" resource="0"
+            file="Resources/CenturyGothicFont.cpp"/>
+      <FILE id="vsOOlU" name="CenturyGothicFont.h" compile="0" resource="0"
+            file="Resources/CenturyGothicFont.h"/>
+    </GROUP>
     <GROUP id="{3B113998-7B46-0EEA-B4AF-8FA83DCB39C9}" name="Source">
+      <FILE id="EDJ3UJ" name="CustomLookAndFeel.cpp" compile="1" resource="0"
+            file="Source/CustomLookAndFeel.cpp"/>
+      <FILE id="r82Q0U" name="CustomLookAndFeel.h" compile="0" resource="0"
+            file="Source/CustomLookAndFeel.h"/>
+      <FILE id="IK902a" name="EnvelopeFollower.cpp" compile="1" resource="0"
+            file="Source/EnvelopeFollower.cpp"/>
+      <FILE id="Lgsecc" name="EnvelopeFollower.h" compile="0" resource="0"
+            file="Source/EnvelopeFollower.h"/>
+      <FILE id="d6lOLv" name="StateVariableFilter.cpp" compile="1" resource="0"
+            file="Source/StateVariableFilter.cpp"/>
+      <FILE id="utBfze" name="StateVariableFilter.h" compile="0" resource="0"
+            file="Source/StateVariableFilter.h"/>
       <FILE id="ZzYipI" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="O2LocH" name="PluginProcessor.h" compile="0" resource="0"

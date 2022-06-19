@@ -224,13 +224,12 @@ void BassEnvelopeFilterAudioProcessor::processBlock (juce::AudioBuffer<float>& b
 //==============================================================================
 bool BassEnvelopeFilterAudioProcessor::hasEditor() const
 {
-    return false; // (change this to false if you choose to not supply an editor)
+    return true; // (change this to false if you choose to not supply an editor)
 }
 
 juce::AudioProcessorEditor* BassEnvelopeFilterAudioProcessor::createEditor()
 {
-    // return new BassEnvelopeFilterAudioProcessorEditor (*this);
-    return nullptr;
+    return new BassEnvelopeFilterAudioProcessorEditor (*this);
 }
 
 //==============================================================================
@@ -245,6 +244,11 @@ void BassEnvelopeFilterAudioProcessor::setStateInformation (const void* data, in
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+juce::AudioProcessorValueTreeState& BassEnvelopeFilterAudioProcessor::getAPVTS()
+{
+    return mParameters;
 }
 
 //==============================================================================
