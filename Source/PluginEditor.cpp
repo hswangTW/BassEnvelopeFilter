@@ -49,6 +49,7 @@ BassEnvelopeFilterAudioProcessorEditor::BassEnvelopeFilterAudioProcessorEditor (
 
 BassEnvelopeFilterAudioProcessorEditor::~BassEnvelopeFilterAudioProcessorEditor()
 {
+    mAudioProcessor.removeChangeListener(this);
 }
 
 //==============================================================================
