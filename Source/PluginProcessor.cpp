@@ -214,6 +214,9 @@ void BassEnvelopeFilterAudioProcessor::processBlock (juce::AudioBuffer<float>& b
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
             mFilters[channel]->setCutoffFrequency(mEnvelopeFollowers[channel]->getNextValue(channelData[sample]) );
+        #ifdef DEBUG
+            if (channel == 0) { sendChangeMessage(); }
+        #endif
             channelData[sample] = *mFXParameter * mFilters[channel]->getNextValue(channelData[sample])
                                   + *mDryParameter * channelData[sample];
         }
@@ -250,6 +253,13 @@ juce::AudioProcessorValueTreeState& BassEnvelopeFilterAudioProcessor::getAPVTS()
 {
     return mParameters;
 }
+
+#ifdef DEBUG
+float BassEnvelopeFilterAudioProcessor::getCutoffFrequency() const
+{
+    return mFilters[0]->getCutoffFrequency();
+}
+#endif
 
 //==============================================================================
 // This creates new instances of the plugin..

@@ -15,7 +15,8 @@
 //==============================================================================
 /**
 */
-class BassEnvelopeFilterAudioProcessorEditor  : public juce::AudioProcessorEditor
+class BassEnvelopeFilterAudioProcessorEditor  : public juce::AudioProcessorEditor,
+                                                public juce::ChangeListener
 {
 public:
     BassEnvelopeFilterAudioProcessorEditor (BassEnvelopeFilterAudioProcessor&);
@@ -25,12 +26,20 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+#ifdef DEBUG
+    void changeListenerCallback(juce::ChangeBroadcaster* sender) override;
+#endif
+
 private:
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 
+    static constexpr int mSliderHeight{ 100 };
     static constexpr int mLabelHeight{ 40 };
     static constexpr int mGapHeight{ 40 };
     static constexpr int mBorder{ 10 };
+
+    static constexpr int mWidth{ 3 * mSliderHeight + 2 * mBorder };
+    static constexpr int mHeight{ 2 * mBorder + 2 * mLabelHeight + 2 * mSliderHeight + mGapHeight };
 
     void addSlider(juce::Slider& slider, std::unique_ptr<SliderAttachment>& attachment, const juce::String& paramID);
     void addLabel(juce::Label& label, const juce::String& text);
@@ -57,6 +66,11 @@ private:
     juce::Slider mSensSlider;
     juce::Label mSensLabel;
     std::unique_ptr<SliderAttachment> mSensAttachment;
+
+    #ifdef DEBUG
+    juce::Slider mDebugSlider;
+    juce::Label mDebugLabel;
+    #endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BassEnvelopeFilterAudioProcessorEditor)
 };

@@ -31,9 +31,20 @@ BassEnvelopeFilterAudioProcessorEditor::BassEnvelopeFilterAudioProcessorEditor (
     addSlider(mSensSlider, mSensAttachment, "sens");
     addLabel(mSensLabel, "SENS.");
 
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    setSize (400, 320);
+#if DEBUG
+    // addLabel(mDebugLabel, "Debug");
+
+    mDebugSlider.setRange(76, 5000);
+    mDebugSlider.setSkewFactorFromMidPoint(sqrt(76 * 5000));
+    mDebugSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
+    mDebugSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    addAndMakeVisible(mDebugSlider);
+
+    mAudioProcessor.addChangeListener(this);
+    setSize(mWidth, mHeight + mGapHeight + mSliderHeight);
+#else
+    setSize(mWidth, mHeight);
+#endif // DEBUG
 }
 
 BassEnvelopeFilterAudioProcessorEditor::~BassEnvelopeFilterAudioProcessorEditor()
@@ -52,30 +63,49 @@ void BassEnvelopeFilterAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     auto area = getLocalBounds().reduced(mBorder);
-    int sliderWidth = area.getWidth() / 3;
 
-    auto upper = area.removeFromTop((area.getHeight() - mGapHeight) / 2);
-    auto dryArea = upper.removeFromLeft(area.getWidth() / 2).removeFromRight(sliderWidth);
-    mDryLabel.setBounds(dryArea.removeFromTop(mLabelHeight));
+    auto labelArea = area.removeFromTop(mLabelHeight);
+    auto dryArea = labelArea.removeFromLeft(labelArea.getWidth() / 2).removeFromRight(mSliderHeight);
+    mDryLabel.setBounds(dryArea);
+    auto fxArea = labelArea.removeFromLeft(mSliderHeight);
+    mFXLabel.setBounds(fxArea);
+
+    auto sliderArea = area.removeFromTop(mSliderHeight);
+    dryArea = sliderArea.removeFromLeft(sliderArea.getWidth() / 2).removeFromRight(mSliderHeight);
     mDrySlider.setBounds(dryArea);
-
-    auto fxArea = upper.removeFromLeft(sliderWidth);
-    mFXLabel.setBounds(fxArea.removeFromTop(mLabelHeight));
+    fxArea = sliderArea.removeFromLeft(mSliderHeight);
     mFXSlider.setBounds(fxArea);
 
     area.removeFromTop(mGapHeight);
-    auto decayArea = area.removeFromLeft(sliderWidth);
-    mDecayLabel.setBounds(decayArea.removeFromTop(mLabelHeight));
+
+    #ifdef DEBUG
+    auto debugArea = area.removeFromBottom(mSliderHeight);
+    mDebugSlider.setBounds(debugArea);
+    area.removeFromBottom(mGapHeight);
+    #endif
+
+    labelArea = area.removeFromTop(mLabelHeight);
+    auto decayArea = labelArea.removeFromLeft(mSliderHeight);
+    mDecayLabel.setBounds(decayArea);
+    auto qArea = labelArea.removeFromLeft(mSliderHeight);
+    mQLabel.setBounds(qArea);
+    mSensLabel.setBounds(labelArea);
+
+    sliderArea = area.removeFromTop(mSliderHeight);
+    decayArea = sliderArea.removeFromLeft(mSliderHeight);
     mDecaySlider.setBounds(decayArea);
-
-    auto qArea = area.removeFromLeft(sliderWidth);
-    mQLabel.setBounds(qArea.removeFromTop(mLabelHeight));
+    qArea = sliderArea.removeFromLeft(mSliderHeight);
     mQSlider.setBounds(qArea);
-
-    auto sensArea = area;
-    mSensLabel.setBounds(sensArea.removeFromTop(mLabelHeight));
-    mSensSlider.setBounds(sensArea);
+    mSensSlider.setBounds(sliderArea);
 }
+
+#ifdef DEBUG
+void BassEnvelopeFilterAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadcaster* sender)
+{
+    // mDebugLabel.setText(juce::String(mAudioProcessor.getCutoffFrequency()), juce::dontSendNotification);
+    mDebugSlider.setValue(mAudioProcessor.getCutoffFrequency());
+}
+#endif DEBUG
 
 void BassEnvelopeFilterAudioProcessorEditor::addSlider(juce::Slider& slider, std::unique_ptr<SliderAttachment>& attachment, const juce::String& paramID)
 {

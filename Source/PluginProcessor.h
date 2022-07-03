@@ -17,7 +17,8 @@
 /**
 */
 
-class BassEnvelopeFilterAudioProcessor  : public juce::AudioProcessor
+class BassEnvelopeFilterAudioProcessor  : public juce::AudioProcessor,
+                                          public juce::ChangeBroadcaster
 {
 public:
     //==============================================================================
@@ -58,6 +59,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     juce::AudioProcessorValueTreeState& getAPVTS();
+
+#ifdef DEBUG
+    float getCutoffFrequency() const;
+#endif
 
 private:
     //==============================================================================
