@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include "StateVariableFilter.h"
 
@@ -38,7 +39,7 @@ void StateVariableFilter::setSampleRate(double sampleRate)
 void StateVariableFilter::setCutoffFrequency(float normalizedFreq)
 {
     mCutoff = mMinCutoff + normalizedFreq * (SVF_MAX_CUTOFF_FREQ - mMinCutoff);
-    mGain = tan(0.5f * mCutoff / mSampleRate);
+    mGain = tan(M_PI * mCutoff / mSampleRate);
     mDenominator = 1 / (1 + 2 * mDamping * mGain + mGain * mGain);
 }
 
@@ -51,7 +52,7 @@ void StateVariableFilter::setResonance(float q)
 void StateVariableFilter::setParams(float normalizedFreq, float q)
 {
     mCutoff = mMinCutoff + normalizedFreq * (SVF_MAX_CUTOFF_FREQ - mMinCutoff);
-    mGain = tan(0.5f * mCutoff / mSampleRate);
+    mGain = tan(M_PI * mCutoff / mSampleRate);
     mDamping = 0.5f / q;
     mDenominator = 1 / (1 + 2 * mDamping * mGain + mGain * mGain);
 }
@@ -65,6 +66,11 @@ void StateVariableFilter::setParams(float normalizedFreq, float q, double sample
 void StateVariableFilter::setMinCutoffFrequency(float freq)
 {
     mMinCutoff = freq;
+}
+
+float StateVariableFilter::getCutoffFrequency() const
+{
+    return mCutoff;
 }
 
 float StateVariableFilter::getNextValue(float input)

@@ -27,8 +27,9 @@ public:
     void setParams(float freq, float q);
     void setParams(float freq, float q, double sampleRate);
     void setResonance(float q);
-
     void setMinCutoffFrequency(float freq);
+
+    float getCutoffFrequency() const;
 
     void reset();
 
