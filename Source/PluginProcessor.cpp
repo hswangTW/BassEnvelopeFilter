@@ -64,9 +64,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout BassEnvelopeFilterAudioProce
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         "sens",
         "Sens",
-        0.0f,
-        15.0f,
-        5.0f));
+        0.001f,
+        2.0f,
+        1.0f));
 
     return layout;
 }
